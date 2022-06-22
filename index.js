@@ -1,11 +1,12 @@
+require('dotenv').config
 const express = require('express')
 const app = express()
-app.use(express.json())
-
-app.use(express.static('build'))
-
 const cors = require('cors')
 app.use(cors())
+app.use(express.static('build'))
+app.use(express.json())
+const mongoose = require('mongoose')
+const Note = require('./models/note')
 
 let notes=[
     {
@@ -37,23 +38,20 @@ app.get('/', (request, response) => {
 })
 
 app.get('/api/notes', (request, response) => {
-    response.json(notes)
+    Note.find({}).then((notes) => {
+        response.json(notes)
+    })
 })
 
 app.get('/api/notes/:id', (request, response) => {
-    const id = Number(request.params.id)
-    const note = notes.find((note) => {
-        return (note.id === id)
-    })
-    if(note) {
+    const id = request.params.id
+    const note = Note.findById(id).then((note) => {
         response.json(note)
-    } else {
-        response.status(404).end()
-    }
+    })
 })
 
 app.delete('/api/notes/:id', (request, response) => {
-    const id = Number(request.params.id)
+    const id = request.params.id
     notes = notes.filter((note) => {
         return (note.id !== id)
     })
@@ -75,18 +73,18 @@ app.post('/api/notes/', (request, response) => {
         })
     }
 
-    const note = {
+    const note = new Note({
         content: request.body.content,
         important: request.body.important || false,
         date: new Date(),
-        id: generateID(),
-    }
+    })
 
-    notes = notes.concat(note)
-    response.json(note)
+    note.save().then((savedNote) => {
+        response.json(savedNote)
+    })
 })
 
-const PORT = process.env.PORT || 3001
+const PORT = process.env.PORT
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`)
 })
