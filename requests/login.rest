@@ -1,0 +1,17 @@
+POST http://localhost:4001/api/login
+Content-Type: application/json
+
+{
+    "username": "mikkaieku",
+    "password": "Ascashufalas"
+}
+
+# {
+#     "username": "mikkaieku",
+#     "password": "AscashuFalas"
+# }
+
+# {
+#     "username":"testUsername",
+#     "password":"testPassword"
+# }
