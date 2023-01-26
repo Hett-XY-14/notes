@@ -3,14 +3,93 @@ const supertest = require('supertest')
 const app = require('../app')
 const api = supertest(app)
 const Note = require('../models/note')
+const User = require('../models/user')
+const bcrypt = require('bcrypt')
 
 const { initialNotes } = require('./test_helper')
 const helper = require('./test_helper')
 
-beforeEach(async () => {
+// ------------------ Users ---------------------- //
+
+describe('when there is initially one user in the db', () => {
+
+    beforeEach(async () => {
+        await User.deleteMany({})
+
+        const saltRounds = 10
+        const passwordHash = await bcrypt.hash('genericPassword', saltRounds)
+        console.log(passwordHash)
+        const newUser = new User({
+            username: 'genericUsername',
+            name: 'genericName',
+            passwordHash: passwordHash
+        })
+        await newUser.save()
+    })
+    //----------------------------------------------------
+    test('creation succeeds with a new username', async () => {
+        const newUser = {
+            username: 'newGenericUsername',
+            name: 'newGenericName',
+            password: 'newGenericPassword'
+        }
+
+        await api.post('/api/users/')
+            .send(newUser)
+            .expect(201)
+            .expect('Content-Type', /application\/json/)
+
+        const usersInDB = await helper.usersInDB()
+        const usernamesInDB = usersInDB.map((user) => {
+            return ( user.username )
+        })
+        expect(usersInDB).toHaveLength(2)
+        expect(usernamesInDB).toContain(newUser.username)
+    })
+    //----------------------------------------------------
+    test('creation fails with a proper statuscode and error message if username is already taken', async () => {
+        const usersInDB = await helper.usersInDB()
+        const existingUser = usersInDB[0]
+
+        const newUser = {
+            username: existingUser.username,
+            name: 'Peter Ferguson',
+            password: 'HighlySecurePasswordXD'
+        }
+
+        const result = await api.post('/api/users')
+            .send(newUser)
+            .expect(400)
+            .expect('Content-Type', /application\/json/)
+        expect(result.body.error).toContain('username must be unique')
+
+        const usersInDBAfter = await helper.usersInDB()
+        expect(usersInDB).toEqual(usersInDBAfter)
+    })
+    //----------------------------------------------------
+    test('login succeeds with the correct password for an existing user', async () => {
+        const userCredentials = {
+            username: 'genericUsername',
+            password: 'genericPassword'
+        }
+
+        const result = await api.post('/api/login')
+            .send(userCredentials)
+            .expect(200)
+            .expect('Content-Type', /application\/json/)
+        console.log(result)
+    })
+    //----------------------------------------------------
+})
+ 
+
+// ------------------ Notes ---------------------- //
+
+beforeEach(async () => { 
     await Note.deleteMany({})
     await Note.insertMany(initialNotes)
-
+    
+    // Alternative code
     //--------------------------------------------
     // const noteObjects = initialNotes.map((note) => {
     //     return new Note(note)
@@ -90,9 +169,12 @@ describe('viewing a specific note', () => {
 describe('addition of a new note', () => {
 
     test('succeeds with valid data', async () => {
+        const users = await helper.usersInDB()
+        const userId = users[0].id
         const newNote = {
             content: 'async/await simplifies making async calls',
             important: true,
+            userId: userId
         }
     
         await api
@@ -124,6 +206,7 @@ describe('addition of a new note', () => {
         const notesInDB = await helper.notesInDB()
         expect(notesInDB).toHaveLength(helper.initialNotes.length)
     })
+    //-------------------------------------------------------
     test('a note without content is not added', async () => {
         const note = {
             important: true,

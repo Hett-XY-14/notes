@@ -1,3 +1,4 @@
+// All this code doesn't affect the app
 const mongoose = require('mongoose')
 
 if (process.argv.length < 3) {

@@ -8,9 +8,9 @@ const userSchema = new mongoose.Schema(
             required:true,
             validate: {
                 validator: (entry) => {
-                    return /\w{3,14}$/y.test(entry)
+                    return /\w{3,20}$/y.test(entry)
                 },
-                message: 'must be alphanumeric characters only and 3-14 characters long'
+                message: 'must be alphanumeric characters only and 3 to 20 characters long'
             },
         },
         name: {

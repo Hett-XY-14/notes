@@ -2,7 +2,13 @@ POST http://localhost:4001/api/users
 Content-Type: application/json
 
 {
-    "username": "testUsername",
-    "name": "testName",
-    "password": "testPassword"
+    "username": "ElixhirMend",
+    "name": "Aejhin ahbitl",
+    "password": "Creopaxta1"
 }
+
+# {
+#     "username": "Elixhir",
+#     "name": "Aejhin ahbitl",
+#     "password": "Creopaxta1"
+# }

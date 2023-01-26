@@ -1,8 +1,8 @@
 POST http://localhost:4001/api/notes
 Content-Type: application/json
+Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IkVsaXhoaXIiLCJpZCI6IjYyYzYyZGZkZTFlNWQ3YzUwNWE4Y2Q4NSIsImlhdCI6MTY1NzE1NTA5MH0.hI4KwEh2fyxTVvwgp35cl49CuflljhFptFsGOKF6Ruk
 
 {
-    "content": "VS Code REST client is pretty usefull Second note",
-    "important": false,
-    "userId":"62c4acde585dc0bde150ea16"
+    "content": "Content creation by the mere act of create is floading the world with data-contamination",
+    "important": true
 }
