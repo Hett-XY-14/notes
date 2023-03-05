@@ -3,6 +3,7 @@ const Note = require('../models/note')
 const User = require('../models/user')
 const jwt = require('jsonwebtoken')
 const {SECRET} = require('../utils/config')
+
 notesRouter.get('/', async (request, response) => {
     const notes = await Note.find({}).populate('user', {username: 1})
     response.json(notes)
